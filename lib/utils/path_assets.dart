@@ -1,0 +1,1 @@
+const logoUmayakuy = 'assets/logo_umayakuy.png';
