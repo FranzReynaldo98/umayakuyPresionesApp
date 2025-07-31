@@ -4,7 +4,9 @@ import 'package:app/ui/widgets/base_pantalla.dart';
 import 'package:app/ui/widgets/botones.dart';
 import 'package:app/ui/widgets/campos_texto.dart';
 import 'package:app/ui/widgets/textos.dart';
+import 'package:app/utils/app_colors.dart';
 import 'package:app/utils/path_assets.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sizing/sizing.dart';
@@ -62,14 +64,37 @@ class _PantallaCrearSesionState extends State<PantallaCrearSesion> {
     );
   }
   void iniciarSesion() async {
-    Navigator.pushNamed(context, PantallaRegistro.route);
-    /*print('object');
-    final res = await context.read<ProviderSesion>().crearSesion();
+    if(await tieneInternet()) {
+      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: colorError,content: Text('No tienes conexión a internet')));
+      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Tienes conexión a internet')));
+      //Navigator.pushNamed(context, PantallaRegistro.route);
+      print('object');
+      final res = await context.read<ProviderSesion>().crearSesion();
+      
+      if (res && mounted) {
+        Navigator.pushNamed(context, PantallaRegistro.route);
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: colorError,content: Text('No tienes conexión a internet')));
+    }
     
-    if (res && mounted) {
-      Navigator.pushNamed(context, PantallaRegistro.route);
-    }*/
+    
   }
 }
 
-//await LocalStorage.prefs.setString("${loginData.dni}seed", jsonResponse["data"]["sessionItem"]["requester"]["seed"]);
+Future<bool> tieneInternet() async {
+  final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+
+  // This condition is for demo purposes only to explain every connection type.
+  // Use conditions which work for your requirements.
+  if (connectivityResult.contains(ConnectivityResult.mobile)) {
+    return true;
+    // Mobile network available.
+  } else if (connectivityResult.contains(ConnectivityResult.wifi)) {
+    return true;
+    // Wi-fi is available.
+    // Note for Android:
+    // When both mobile and Wi-Fi are turned on system will return Wi-Fi only as active network type
+  }
+  return false;
+}

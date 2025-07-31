@@ -99,8 +99,16 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
             ),
             SizedBox(height: 10.ss),
             BotonPrincipal(
-              onPressed: () {
-                Navigator.pushNamed(context, PantallaSeleccionarVivienda.route);
+              onPressed: () async {
+                final result = await Navigator.pushNamed(context, PantallaSeleccionarVivienda.route);
+                print(result);
+              }, 
+              text: 'SELECCIONAR VIVIENDA'
+            ),
+            BotonPrincipal(
+              onPressed: () async {
+                final result = await Navigator.pushNamed(context, PantallaSeleccionarVivienda.route);
+                print(result);
               }, 
               text: 'REGISTRAR'
             )

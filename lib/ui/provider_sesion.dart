@@ -44,6 +44,7 @@ class ProviderSesion extends ChangeNotifier {
 
   bool buscarLocalUsuario(String nombreUsuario) {
     usuario = LocalStorage.prefs.getString(usuarioLocal) ?? '';
+    print(usuario);
     return nombreUsuario == usuario;
   }
 
