@@ -1,4 +1,6 @@
 import 'package:app/ui/provider_catastro.dart';
+import 'package:app/ui/provider_registro.dart';
+import 'package:app/ui/provider_sesion.dart';
 import 'package:app/ui/widgets/base_pantalla.dart';
 import 'package:app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -83,9 +85,9 @@ class _PantallaSeleccionarViviendaState extends State<PantallaSeleccionarViviend
                                 color: Colors.blue,
                                 border: Border.all(
                                   width: 1,
-                                  color: pCatastroW.idSeleccionado == e.id ? Colors.cyanAccent.shade100 : Colors.transparent
+                                  color: pCatastroW.viviendaSel.id == e.id ? Colors.cyanAccent.shade100 : Colors.transparent
                                 ),
-                                boxShadow: pCatastroW.idSeleccionado == e.id ? [
+                                boxShadow: pCatastroW.viviendaSel.id == e.id ? [
                                   BoxShadow(
                                     blurRadius: 6,
                                     color: Colors.white,
@@ -131,19 +133,27 @@ class _PantallaSeleccionarViviendaState extends State<PantallaSeleccionarViviend
             ),
           ),
           ...pCatastroW.viviendas.map((v) {
-            return ListTile(
-              hoverColor: Colors.red,
-              splashColor: Colors.red,
-              selectedColor: Colors.red,
-              title: Text(
-                v.catastro,
-                style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                  color: Colors.white
+            return Material(
+              color: Colors.transparent,
+              child: ListTile(
+                splashColor: colorPrincipal,
+                title: Text(
+                  v.catastro,
+                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                    color: Colors.white
+                  ),
                 ),
+                trailing: pCatastroW.viviendaSel.id == v.id ?  IconButton(
+                  onPressed: () {
+                    context.read<ProviderRegistro>().setVivienda(v);
+                    Navigator.pop(context);
+                  }, 
+                  icon: Icon(Icons.check_circle, color: colorFondo,)
+                ) : SizedBox(),
+                onTap: () {
+                  context.read<ProviderCatastro>().setViviendaSel(v);
+                }, 
               ),
-              onTap: () {
-                context.read<ProviderCatastro>().setIdSeleccionado(v);
-              },
             );
           })
           
@@ -165,13 +175,8 @@ class _PantallaSeleccionarViviendaState extends State<PantallaSeleccionarViviend
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
-
-    // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the 
-      // App to enable the location services.
       return Future.error('Location services are disabled.');
     }
 
@@ -179,29 +184,20 @@ class _PantallaSeleccionarViviendaState extends State<PantallaSeleccionarViviend
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale 
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
         return Future.error('Location permissions are denied');
       }
     }
     
     if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately. 
       return Future.error(
         'Location permissions are permanently denied, we cannot request permissions.');
     } 
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.bestForNavigation,
       distanceFilter: 100,
     );
     locationData = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
-    context.read<ProviderCatastro>().getViviendasCercanas(latitud: locationData!.latitude, longitud: locationData!.longitude);
+    context.read<ProviderCatastro>().getViviendasCercanas(circuito: context.read<ProviderSesion>().circuito,latitud: locationData!.latitude, longitud: locationData!.longitude);
     setState(() {
       loadingLocation = false;
     });

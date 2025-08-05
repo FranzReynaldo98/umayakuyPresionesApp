@@ -3,9 +3,12 @@ import 'package:app/ui/registro/pantalla_registro.dart';
 import 'package:app/ui/widgets/base_pantalla.dart';
 import 'package:app/ui/widgets/botones.dart';
 import 'package:app/ui/widgets/campos_texto.dart';
+import 'package:app/ui/widgets/popup_info.dart';
+import 'package:app/ui/widgets/selectores.dart';
 import 'package:app/ui/widgets/textos.dart';
 import 'package:app/utils/app_colors.dart';
 import 'package:app/utils/path_assets.dart';
+import 'package:app/utils/resultado_enum.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +28,13 @@ class _PantallaCrearSesionState extends State<PantallaCrearSesion> {
   final TextEditingController _controllerUsuario = TextEditingController(); 
   final TextEditingController _controllerAutorizacion = TextEditingController(); 
   @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+       context.read<ProviderSesion>().iniciar();// ya no lanza error
+    });
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     final pSesionR = context.read<ProviderSesion>();
     final pSesionW = context.watch<ProviderSesion>();
@@ -34,17 +44,24 @@ class _PantallaCrearSesionState extends State<PantallaCrearSesion> {
         child: Column(
           children: [
             Image.asset(logoUmayakuy, height: 200.ss),
-            CampoTextoPrincipal(
-              labelTexto: 'Circuito',
-              controller: _controllerCircuito,
-              onChanged: pSesionR.setCircuito
+            SelectorPrincipal(
+              textoLabel: 'Circuito',
+              value: pSesionW.circuito, 
+              loading: pSesionW.loadingCircuitos,
+              colorFondo: colorPrincipal,
+              colorTexto: colorFondo,
+              onChanged: (x,i) {
+                pSesionR.setCircuito(pSesionW.circuitos[i].nombre);
+              }, 
+              currentItem: (x) => pSesionW.circuitos[x].nombre, 
+              itemCount: pSesionW.circuitos.length
             ),
             CampoTextoPrincipal(
               labelTexto: 'Usuario',
               controller: _controllerUsuario,
               onChanged: pSesionR.setUsuario
             ),
-            CampoTextoPrincipal(
+            CampoTextoPassword(
               labelTexto: 'Autorización',
               controller: _controllerAutorizacion,
               onChanged: pSesionR.setAutorizacion
@@ -70,9 +87,12 @@ class _PantallaCrearSesionState extends State<PantallaCrearSesion> {
       //Navigator.pushNamed(context, PantallaRegistro.route);
       print('object');
       final res = await context.read<ProviderSesion>().crearSesion();
+      print('result $res');
       
       if (res && mounted) {
         Navigator.pushNamed(context, PantallaRegistro.route);
+      } else {
+        popupInfo(context, mensaje: context.read<ProviderSesion>().mensajeError, tipoPopup: GetPopupTipo.error.index);
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: colorError,content: Text('No tienes conexión a internet')));

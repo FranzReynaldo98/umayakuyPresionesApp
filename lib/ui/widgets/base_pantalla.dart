@@ -9,17 +9,19 @@ class BasePantalla extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(title, style: TextStyle(fontSize: 18.ss),)
-        )
-      ),
-      body: Container(
-        width: 100.sw,
-        padding: padding ?? EdgeInsets.symmetric(horizontal: 30.ss, vertical: 15.ss),
-        child: body,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(title, style: TextStyle(fontSize: 18.ss),)
+          )
+        ),
+        body: Container(
+          width: 100.sw,
+          padding: padding ?? EdgeInsets.symmetric(horizontal: 30.ss, vertical: 15.ss),
+          child: body,
+        ),
       ),
     );
   }

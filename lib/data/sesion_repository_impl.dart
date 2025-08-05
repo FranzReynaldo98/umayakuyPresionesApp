@@ -22,10 +22,39 @@ class SesionRepositoryImpl extends SesionRepository{
     final response = await http.post(uri, body: body);
     if(response.statusCode == 201) {
       var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
-      usuarioFinal = jsonResponse['data'];
+      usuarioFinal = jsonResponse['data']['usuario_final'];
       await LocalStorage.prefs.setString(usuarioLocal, usuarioFinal);
       responseData[usuarioLocal] = usuarioFinal;
-      print(usuarioFinal);
+    } else {
+      var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      responseData[error] = true;
+      responseData[mensaje] = jsonResponse[mensaje];
+    }
+    return responseData;
+  }
+  
+  @override
+  Future<Map<String, dynamic>> iniciarSesion({required String usuario}) async {
+    Map<String,dynamic> responseData = {};
+    final url="${api}sesion/iniciar";
+    final uri=Uri.parse(url);
+    String usuarioR = '';
+    String circuitoR = '';
+    final body = {
+      'usuario_c': usuario
+    };
+    print(body);
+    final response = await http.post(uri, body: body);
+    if(response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      if(jsonResponse['data'] != null) {
+        for(var e in jsonResponse['data']) {
+          usuarioR = e['sesion'];
+          circuitoR = e['circuito'];
+        }
+      }
+      responseData['usuario'] = usuarioR;
+      responseData['circuito'] = circuitoR;
     } else {
       var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
       responseData[error] = true;

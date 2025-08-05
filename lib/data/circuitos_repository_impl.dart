@@ -1,32 +1,28 @@
+
 import 'dart:convert';
 
 import 'package:app/data/configuracion.dart';
 import 'package:app/data/constantes.dart';
-import 'package:app/domain/model/vivienda.dart';
-import 'package:app/domain/repository/catastro_repository.dart';
+import 'package:app/domain/model/circuito.dart';
+import 'package:app/domain/repository/circuitos_repository.dart';
 import 'package:http/http.dart' as http;
 
-class CatastroRepositoryImpl extends CatastroRepository{
+class CircuitosRepositoryImpl extends CircuitosRepository {
   @override
-  Future<Map<String, dynamic>> getViviendasCercanas({required String circuito, required double longitud, required double latitud}) async {
+  Future<Map<String, dynamic>> getCircuitos() async {
     Map<String,dynamic> responseData = {};
-    List<Vivienda> viviendas = [];
-    final url="${api}catastro/viviendas";
+    List<Circuito> circuitos = [];
+    final url="${api}circuitos";
     final uri=Uri.parse(url);
-    final body = {
-      'longitud': longitud.toString(),
-      'latitud': latitud.toString(),
-      'circuito': circuito
-    };
-    final response = await http.post(uri, body: (body));
+    final response = await http.get(uri);
     if(response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
       if(jsonResponse['data'] != null) {
         for(var e in jsonResponse['data']) {
-          viviendas.add(Vivienda.fromJSON(e));
+          circuitos.add(Circuito.fromJSON(e));
         }
       }
-      responseData['viviendas'] = viviendas;
+      responseData['circuitos'] = circuitos;
     } else {
       var jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
       responseData[error] = true;

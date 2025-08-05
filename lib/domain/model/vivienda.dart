@@ -8,6 +8,10 @@ class Vivienda {
     required this.nombre, required this.latitud, required this.longitud,
   });
 
+  factory Vivienda.empty() => Vivienda(
+    id: 0, geom: '', catastro: '', circuito: '', nombre: '', latitud: 0, longitud: 0
+  );
+
   factory Vivienda.fromJSON(Map<String,dynamic> data) => Vivienda(
     id: data['id'] ?? 0, geom: data['geom'] ?? '', catastro: data['catastro'] ?? '', 
     circuito: data['circuito'] ?? '', nombre: data['nombre'] ?? '', 

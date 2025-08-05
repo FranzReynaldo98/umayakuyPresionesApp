@@ -6,25 +6,26 @@ import 'package:flutter/material.dart';
 class ProviderCatastro extends ChangeNotifier {
   bool loading = false;
   String mensajeError = '';
-  int idSeleccionado = -1;
   final List<Vivienda> viviendas = [];
+  Vivienda viviendaSel = Vivienda.empty();
   CatastroRepositoryImpl catastroRepository = CatastroRepositoryImpl(); 
-  void setIdSeleccionado(Vivienda v) {
-    if(idSeleccionado == v.id) {
-      idSeleccionado = -1;
+
+  void setViviendaSel(Vivienda vivienda) {
+    if(viviendaSel.id == vivienda.id) {
+      viviendaSel = Vivienda.empty();
     } else {
-      idSeleccionado = v.id;
+      viviendaSel = vivienda;
     }
     notifyListeners();
   }
 
-  Future<bool> getViviendasCercanas ({required double longitud, required double latitud}) async {
+  Future<bool> getViviendasCercanas ({required String circuito, required double longitud, required double latitud}) async {
     bool resultado = true;
     viviendas.clear();
     mensajeError = '';
     loading = true;
     notifyListeners();
-    await catastroRepository.getViviendasCercanas(longitud: longitud, latitud: latitud)
+    await catastroRepository.getViviendasCercanas(circuito: circuito,longitud: longitud, latitud: latitud)
       .then((result) {
           if(result[error] ?? false) {
             resultado = false;
